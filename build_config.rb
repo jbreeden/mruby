@@ -41,11 +41,11 @@ MRuby::Build.new('host') do |conf|
   conf.gem :github => 'iij/mruby-dir'
   conf.gem :github => 'iij/mruby-errno'
 
+  conf.gem "../mrbgems/mruby-apr"
+  configure_mruby_apr(conf)
   conf.gem "../mrbgems/mruby-lamina"
   conf.gem "../mrbgems/mruby-bin-lamina"
   conf.gem "../mrbgems/mruby-cef"
-  conf.gem "../mrbgems/mruby-apr"
-  configure_mruby_apr(conf)
 
   if ENV['DEBUG'] && (ENV['VisualStudioVersion'] || ENV['VSINSTALLDIR'])
     conf.cc.flags << "/DEBUG"
