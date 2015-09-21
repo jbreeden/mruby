@@ -31,6 +31,18 @@ MRuby::Build.new('host') do |conf|
     conf.cc.flags << '-stdlib=libstdc++'
     conf.cxx.flags << '-stdlib=libstdc++'
     conf.linker.flags << '-stdlib=libstdc++'
+  elsif OS.windows?
+    # TODO: Can I check for 64 bit build environment?
+
+    [conf.cc, conf.cxx].each do |compiler|
+      compiler.flags = compiler.flags.flatten.map do |flag|
+        if flag == "/MD"
+          "/MT"
+        else
+          flag
+        end
+      end
+    end
   end
 
   Dir.entries('mrbgems').reject { |f| f =~ /bin/ || !(f =~ /mruby/) }.each do |gem|
@@ -38,8 +50,6 @@ MRuby::Build.new('host') do |conf|
   end
 
   conf.gem :github => 'iij/mruby-regexp-pcre'
-  conf.gem :github => 'iij/mruby-dir'
-  conf.gem :github => 'iij/mruby-errno'
 
   conf.gem "../mrbgems/mruby-apr"
   configure_mruby_apr(conf)
@@ -68,13 +78,21 @@ MRuby::Build.new('console') do |conf|
     conf.cc.flags << '-stdlib=libstdc++'
     conf.cxx.flags << '-stdlib=libstdc++'
     conf.linker.flags << '-stdlib=libstdc++'
+  elsif OS.windows?
+    [conf.cc, conf.cxx].each do |compiler|
+      compiler.flags = compiler.flags.flatten.map do |flag|
+        if flag == "/MD"
+          "/MT"
+        else
+          flag
+        end
+      end
+    end
   end
 
   conf.gembox 'full-core'
 
   conf.gem :github => 'iij/mruby-regexp-pcre'
-  conf.gem :github => 'iij/mruby-dir'
-  conf.gem :github => 'iij/mruby-errno'
 
   conf.gem "../mrbgems/mruby-apr"
 
