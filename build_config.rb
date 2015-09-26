@@ -33,7 +33,7 @@ MRuby::Build.new('host') do |conf|
     conf.linker.flags << '-stdlib=libstdc++'
   end
 
-  Dir.entries('mrbgems').reject { |f| f =~ /bin/ || !(f =~ /mruby/) }.each do |gem|
+  Dir.entries('mrbgems').reject { |f| f =~ /bin|test/ || !(f =~ /mruby/) }.each do |gem|
     conf.gem core: gem
   end
 
@@ -82,5 +82,4 @@ MRuby::Build.new('console') do |conf|
     conf.cc.flags << "/DEBUG"
     conf.cxx.flags << "/DEBUG"
   end
-
 end
