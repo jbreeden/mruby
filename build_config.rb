@@ -20,7 +20,8 @@ MRuby::Build.new do |conf|
   # conf.gem :git => 'git@github.com:masuidrive/mrbgems-example.git', :branch => 'master', :options => '-v'
 
   # include the default GEMs
-  conf.gembox 'default'
+  conf.gembox 'full-core'
+  conf.gem '../mruby-apr'
 
   # C compiler settings
   # conf.cc do |cc|
@@ -81,41 +82,6 @@ MRuby::Build.new do |conf|
 
   # bintest
   # conf.enable_bintest
-end
-
-MRuby::Build.new('host-debug') do |conf|
-  # load specific toolchain settings
-
-  # Gets set by the VS command prompts.
-  if ENV['VisualStudioVersion'] || ENV['VSINSTALLDIR']
-    toolchain :visualcpp
-  else
-    toolchain :gcc
-  end
-
-  enable_debug
-
-  # include the default GEMs
-  conf.gembox 'default'
-
-  # C compiler settings
-  conf.cc.defines = %w(ENABLE_DEBUG)
-
-  # Generate mruby debugger command (require mruby-eval)
-  conf.gem :core => "mruby-bin-debugger"
-
-  # bintest
-  # conf.enable_bintest
-end
-
-MRuby::Build.new('test') do |conf|
-  toolchain :gcc
-
-  enable_debug
-  conf.enable_bintest
-  conf.enable_test
-
-  conf.gembox 'default'
 end
 
 # Define cross build settings
