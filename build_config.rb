@@ -8,7 +8,7 @@ MRuby::Build.new do |conf|
     toolchain :gcc
   end
 
-  enable_debug
+  #enable_debug
 
   # Use mrbgems
   # conf.gem 'examples/mrbgems/ruby_extension_example'
@@ -20,8 +20,12 @@ MRuby::Build.new do |conf|
   # conf.gem :git => 'git@github.com:masuidrive/mrbgems-example.git', :branch => 'master', :options => '-v'
 
   # include the default GEMs
+  conf.cc.flags << '-fexceptions'
+  conf.cxx.flags << '-fexceptions'
   conf.gembox 'full-core'
   conf.gem '../mruby-apr'
+
+  conf.gem github: 'iij/mruby-regexp-pcre'
 
   # C compiler settings
   # conf.cc do |cc|
