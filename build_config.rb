@@ -24,6 +24,9 @@ MRuby::Build.new do |conf|
   conf.cxx.flags << '-fexceptions'
   conf.gembox 'full-core'
   conf.gem '../mruby-apr'
+  configure_mruby_apr(conf)
+  conf.gem '../mruby-wiring-pi'
+  conf.gem '../mruby-mrack'
 
   conf.gem github: 'iij/mruby-regexp-pcre'
 
