@@ -188,6 +188,11 @@ genop_peep(codegen_scope *s, mrb_code i, int val)
       if (val) break;
       switch (c0) {
       case OP_MOVE:
+        if (GETARG_A(i) == GETARG_A(i0)) {
+          /* skip overriden OP_MOVE */
+          s->pc--;
+          s->iseq[s->pc] = i;
+        }
         if (GETARG_B(i) == GETARG_A(i0) && GETARG_A(i) == GETARG_B(i0)) {
           /* skip swapping OP_MOVE */
           return 0;
@@ -406,7 +411,18 @@ push_(codegen_scope *s)
   nregs_update;
 }
 
+static void
+push_n_(codegen_scope *s, size_t n)
+{
+  if (s->sp+n > 511) {
+    codegen_error(s, "too complex expression");
+  }
+  s->sp+=n;
+  nregs_update;
+}
+
 #define push() push_(s)
+#define push_n(n) push_n_(s,n)
 #define pop_(s) ((s)->sp--)
 #define pop() pop_(s)
 #define pop_n(n) (s->sp-=(n))
@@ -1001,6 +1017,8 @@ gen_vmassignment(codegen_scope *s, node *tree, int rhs, int val)
     else {
       pop();
     }
+    push_n(post);
+    pop_n(post);
     genop(s, MKOP_ABC(OP_APOST, cursp(), n, post));
     n = 1;
     if (t->car) {               /* rest */
@@ -1312,6 +1330,17 @@ codegen(codegen_scope *s, node *tree, int val)
       int pos1, pos2;
       node *e = tree->cdr->cdr->car;
 
+      switch ((intptr_t)tree->car->car) {
+      case NODE_TRUE:
+      case NODE_INT:
+      case NODE_STR:
+        codegen(s, tree->cdr->car, val);
+        return;
+      case NODE_FALSE:
+      case NODE_NIL:
+        codegen(s, e, val);
+        return;
+      }
       codegen(s, tree->car, VAL);
       pop();
       pos1 = genop_peep(s, MKOP_AsBx(OP_JMPNOT, cursp(), 0), NOVAL);
@@ -2198,7 +2227,8 @@ codegen(codegen_scope *s, node *tree, int val)
   case NODE_REGX:
     if (val) {
       char *p1 = (char*)tree->car;
-      char *p2 = (char*)tree->cdr;
+      char *p2 = (char*)tree->cdr->car;
+      char *p3 = (char*)tree->cdr->cdr;
       int ai = mrb_gc_arena_save(s->mrb);
       int sym = new_sym(s, mrb_intern_lit(s->mrb, REGEXP_CLASS));
       int off = new_lit(s, mrb_str_new_cstr(s->mrb, p1));
@@ -2208,11 +2238,22 @@ codegen(codegen_scope *s, node *tree, int val)
       genop(s, MKOP_ABx(OP_GETMCNST, cursp(), sym));
       push();
       genop(s, MKOP_ABx(OP_STRING, cursp(), off));
-      if (p2) {
+      if (p2 || p3) {
         push();
-        off = new_lit(s, mrb_str_new_cstr(s->mrb, p2));
-        genop(s, MKOP_ABx(OP_STRING, cursp(), off));
+        if (p2) {
+          off = new_lit(s, mrb_str_new_cstr(s->mrb, p2));
+          genop(s, MKOP_ABx(OP_STRING, cursp(), off));
+        } else {
+          genop(s, MKOP_A(OP_LOADNIL, cursp()));
+        }
         argc++;
+        if (p3) {
+          push();
+          off = new_lit(s, mrb_str_new(s->mrb, p3, 1));
+          genop(s, MKOP_ABx(OP_STRING, cursp(), off));
+          argc++;
+          pop();
+        }
         pop();
       }
       pop();

@@ -16,7 +16,7 @@
 #define FLAG_BYTEORDER_NONATIVE 0
 
 #ifdef MRB_USE_FLOAT
-#define MRB_FLOAT_FMT "%.9e"
+#define MRB_FLOAT_FMT "%.8e"
 #else
 #define MRB_FLOAT_FMT "%.16e"
 #endif
@@ -978,12 +978,8 @@ error_exit:
     mrb_free(mrb, *bin);
     *bin = NULL;
   }
-  if (lv_syms) {
-    mrb_free(mrb, lv_syms);
-  }
-  if (filenames) {
-    mrb_free(mrb, filenames);
-  }
+  mrb_free(mrb, lv_syms);
+  mrb_free(mrb, filenames);
   return result;
 }
 

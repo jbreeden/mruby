@@ -5,22 +5,22 @@ class Hash
 
   ##
   # call-seq:
-  # Hash[ key, value, ... ] -> new_hash
-  # Hash[ [ [key, value], ... ] ] -> new_hash
-  # Hash[ object ] -> new_hash
+  #     Hash[ key, value, ... ] -> new_hash
+  #     Hash[ [ [key, value], ... ] ] -> new_hash
+  #     Hash[ object ] -> new_hash
   #
   # Creates a new hash populated with the given objects.
   #
-  # Similar to the literal <code>{ _key_ => _value_, ... }</code>. In the first
+  # Similar to the literal `{ _key_ => _value_, ... }`. In the first
   # form, keys and values occur in pairs, so there must be an even number of
   # arguments.
   #
   # The second and third form take a single argument which is either an array
   # of key-value pairs or an object convertible to a hash.
   #
-  # Hash["a", 100, "b", 200] #=> {"a"=>100, "b"=>200}
-  # Hash[ [ ["a", 100], ["b", 200] ] ] #=> {"a"=>100, "b"=>200}
-  # Hash["a" => 100, "b" => 200] #=> {"a"=>100, "b"=>200}
+  #     Hash["a", 100, "b", 200] #=> {"a"=>100, "b"=>200}
+  #     Hash[ [ ["a", 100], ["b", 200] ] ] #=> {"a"=>100, "b"=>200}
+  #     Hash["a" => 100, "b" => 200] #=> {"a"=>100, "b"=>200}
   #
 
   def self.[](*object)
@@ -126,11 +126,11 @@ class Hash
   def fetch(key, none=NONE, &block)
     unless self.key?(key)
       if block
-        block.call
+        block.call(key)
       elsif none != NONE
         none
       else
-        raise RuntimeError, "Key not found: #{key}"
+        raise KeyError, "Key not found: #{key}"
       end
     else
       self[key]
@@ -156,7 +156,7 @@ class Hash
 
     self.each do |k, v|
       self.delete(k) if block.call(k, v)
-    end 
+    end
     self
   end
 

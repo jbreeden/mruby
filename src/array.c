@@ -19,7 +19,6 @@
 static inline mrb_value
 ary_elt(mrb_value ary, mrb_int offset)
 {
-  if (RARRAY_LEN(ary) == 0) return mrb_nil_value();
   if (offset < 0 || RARRAY_LEN(ary) <= offset) {
     return mrb_nil_value();
   }
@@ -295,7 +294,7 @@ mrb_ary_plus(mrb_state *mrb, mrb_value self)
 
   mrb_get_args(mrb, "a", &ptr, &blen);
   if (ARY_MAX_SIZE - blen < a1->len) {
-    mrb_raise(mrb, E_ARGUMENT_ERROR, "array size too big"); 
+    mrb_raise(mrb, E_ARGUMENT_ERROR, "array size too big");
   }
   a2 = ary_new_capa(mrb, a1->len + blen);
   array_copy(a2->ptr, a1->ptr, a1->len);
@@ -349,7 +348,7 @@ mrb_ary_times(mrb_state *mrb, mrb_value self)
   }
   if (times == 0) return mrb_ary_new(mrb);
   if (ARY_MAX_SIZE / times < a1->len) {
-    mrb_raise(mrb, E_ARGUMENT_ERROR, "array size too big"); 
+    mrb_raise(mrb, E_ARGUMENT_ERROR, "array size too big");
   }
   a2 = ary_new_capa(mrb, a1->len * times);
   ptr = a2->ptr;
@@ -1031,7 +1030,7 @@ mrb_ary_join_m(mrb_state *mrb, mrb_value ary)
 {
   mrb_value sep = mrb_nil_value();
 
-  mrb_get_args(mrb, "|S", &sep);
+  mrb_get_args(mrb, "|S!", &sep);
   return mrb_ary_join(mrb, ary, sep);
 }
 
@@ -1069,7 +1068,7 @@ mrb_init_array(mrb_state *mrb)
 {
   struct RClass *a;
 
-  a = mrb->array_class = mrb_define_class(mrb, "Array", mrb->object_class);            /* 15.2.12 */
+  mrb->array_class = a = mrb_define_class(mrb, "Array", mrb->object_class);            /* 15.2.12 */
   MRB_SET_INSTANCE_TT(a, MRB_TT_ARRAY);
 
   mrb_define_class_method(mrb, a, "[]",        mrb_ary_s_create,     MRB_ARGS_ANY());  /* 15.2.12.4.1 */
@@ -1102,4 +1101,5 @@ mrb_init_array(mrb_state *mrb)
 
   mrb_define_method(mrb, a, "__ary_eq",        mrb_ary_eq,           MRB_ARGS_REQ(1));
   mrb_define_method(mrb, a, "__ary_cmp",       mrb_ary_cmp,          MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, a, "__ary_index",     mrb_ary_index_m,      MRB_ARGS_REQ(1)); /* kept for mruby-array-ext */
 }

@@ -59,7 +59,7 @@ module MRuby
           git.run_pull mgem_list_dir, mgem_list_url if $pull_gems
         else
           FileUtils.mkdir_p mgem_list_dir
-          git.run_clone mgem_list_dir, mgem_list_url
+          git.run_clone mgem_list_dir, mgem_list_url, "--depth 1"
         end
 
         require 'yaml'
@@ -76,6 +76,9 @@ module MRuby
 
       if params[:core]
         gemdir = "#{root}/mrbgems/#{params[:core]}"
+      elsif params[:path]
+        require 'pathname'
+        gemdir = Pathname.new(params[:path]).absolute? ? params[:path] : "#{root}/#{params[:path]}"
       elsif params[:git]
         url = params[:git]
         gemdir = "#{gem_clone_dir}/#{url.match(/([-\w]+)(\.[-\w]+|)$/).to_a[1]}"
