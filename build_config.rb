@@ -23,6 +23,7 @@ MRuby::Build.new do |conf|
   conf.gembox 'full-core'
   conf.gem '../rubium/mrbgems/mruby-apr'
   conf.gem '../mruby-sqlite'
+  conf.gem github: 'https://github.com/iij/mruby-regexp-pcre'
 
   # C compiler settings
   # conf.cc do |cc|
