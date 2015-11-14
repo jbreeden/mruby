@@ -28,6 +28,9 @@ MRuby::Build.new('host') do |conf|
   if OS.mac?
     conf.cc.flags << '-m64'
     conf.cxx.flags << '-m64'
+
+    # Need to tell the compiler & linker to match the standard
+    # library used by CEF. (Avoids "missing v table" errors)
     conf.cc.flags << '-stdlib=libstdc++'
     conf.cxx.flags << '-stdlib=libstdc++'
     conf.linker.flags << '-stdlib=libstdc++'
@@ -62,41 +65,4 @@ MRuby::Build.new('host') do |conf|
     conf.cxx.flags << "/DEBUG"
   end
 
-end
-
-MRuby::Build.new('console') do |conf|
-  # Gets set by the VS command prompts.
-  if ENV['VisualStudioVersion'] || ENV['VSINSTALLDIR']
-    toolchain :visualcpp
-  else
-    toolchain :clang
-  end
-
-  if OS.mac?
-    conf.cc.flags << '-m64'
-    conf.cxx.flags << '-m64'
-    conf.cc.flags << '-stdlib=libstdc++'
-    conf.cxx.flags << '-stdlib=libstdc++'
-    conf.linker.flags << '-stdlib=libstdc++'
-  elsif OS.windows?
-    [conf.cc, conf.cxx].each do |compiler|
-      compiler.flags = compiler.flags.flatten.map do |flag|
-        if flag == "/MD"
-          "/MT"
-        else
-          flag
-        end
-      end
-    end
-  end
-
-  conf.gembox 'full-core'
-  conf.gem :github => 'iij/mruby-regexp-pcre'
-  conf.gem :github => "jbreeden/mruby-apr"
-  conf.gem :github => "jbreeden/mruby-sqlite"
-
-  if ENV['DEBUG'] && (ENV['VisualStudioVersion'] || ENV['VSINSTALLDIR'])
-    conf.cc.flags << "/DEBUG"
-    conf.cxx.flags << "/DEBUG"
-  end
 end
