@@ -51,6 +51,7 @@ MRuby::Build.new('host') do |conf|
 
   conf.gem :github => 'iij/mruby-regexp-pcre'
   conf.gem :github => "jbreeden/mruby-apr"
+  conf.gem :github => "jbreeden/mruby-sqlite"
   configure_mruby_apr(conf)
   conf.gem "../mrbgems/mruby-rubium"
   conf.gem "../mrbgems/mruby-bin-rubium"
@@ -92,6 +93,7 @@ MRuby::Build.new('console') do |conf|
   conf.gembox 'full-core'
   conf.gem :github => 'iij/mruby-regexp-pcre'
   conf.gem :github => "jbreeden/mruby-apr"
+  conf.gem :github => "jbreeden/mruby-sqlite"
 
   if ENV['DEBUG'] && (ENV['VisualStudioVersion'] || ENV['VSINSTALLDIR'])
     conf.cc.flags << "/DEBUG"
