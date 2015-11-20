@@ -16,6 +16,9 @@ MRuby::Build.new do |conf|
   # Linker settings
   conf.linker do |linker|
     if /windows/i =~ ENV['OS']
+      # Note, I renamed pdcurses.a to libpdcurses.a
+      # so the linker can find it with -lpdcurses, which
+      # is how MRuby will pass linker.libraries to the compiler.
       linker.libraries = %w(pdcurses)
     else
       linker.libraries = %w(panel ncurses)
