@@ -7,21 +7,21 @@ MRuby::Build.new do |conf|
   end
 
   conf.gembox 'full-core'
+
+  # This should point to where you downloaded mruby-curses
   conf.gem '../mruby-curses'
-  conf.gem github: 'jbreeden/mruby-apr'
-  conf.gem github: 'jbreeden/mruby-sqlite'
+  ## Alternatively...
+  # conf.gem github: 'jbreeden/mruby-curses'
 
   # Linker settings
   conf.linker do |linker|
-    # These just happen to be the paths I used on my system.
-    # You'll want to update these before building.
     if /windows/i =~ ENV['OS']
       linker.libraries = %w(pdcurses)
     else
       linker.libraries = %w(panel ncurses)
     end
 
-    # These just happen to be the paths I used on my system.
+    # These paths just happen to be where I built the libraries.
     # You'll want to update these before building.
     if /windows/i =~ ENV['OS']
       linker.library_paths = ['./pdcurses/win32']
