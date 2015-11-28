@@ -8,16 +8,16 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
-#include "mruby.h"
-#include "mruby/compile.h"
-#include "mruby/proc.h"
-#include "mruby/numeric.h"
-#include "mruby/string.h"
-#include "mruby/debug.h"
+#include <mruby.h>
+#include <mruby/compile.h>
+#include <mruby/proc.h>
+#include <mruby/numeric.h>
+#include <mruby/string.h>
+#include <mruby/debug.h>
 #include "node.h"
-#include "mruby/opcode.h"
-#include "mruby/re.h"
-#include "mruby/throw.h"
+#include <mruby/opcode.h>
+#include <mruby/re.h>
+#include <mruby/throw.h>
 
 typedef mrb_ast_node node;
 typedef struct mrb_parser_state parser_state;
@@ -96,7 +96,7 @@ codegen_error(codegen_scope *s, const char *message)
     mrb_pool_close(s->mpool);
     s = tmp;
   }
-#ifndef MBB_DISABLE_STDIO
+#ifndef MRB_DISABLE_STDIO
   if (s->filename && s->lineno) {
     fprintf(stderr, "codegen error:%s:%d: %s\n", s->filename, s->lineno, message);
   }

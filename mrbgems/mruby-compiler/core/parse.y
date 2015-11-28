@@ -22,12 +22,12 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
-#include "mruby.h"
-#include "mruby/compile.h"
-#include "mruby/proc.h"
-#include "mruby/error.h"
+#include <mruby.h>
+#include <mruby/compile.h>
+#include <mruby/proc.h>
+#include <mruby/error.h>
+#include <mruby/throw.h>
 #include "node.h"
-#include "mruby/throw.h"
 
 #define YYLEX_PARAM p
 
@@ -5442,7 +5442,7 @@ mrb_parser_new(mrb_state *mrb)
   p->pool = pool;
 
   p->s = p->send = NULL;
-#ifndef MRB_DISBLE_STDIO
+#ifndef MRB_DISABLE_STDIO
   p->f = NULL;
 #endif
 
