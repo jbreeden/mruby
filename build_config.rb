@@ -6,11 +6,15 @@ MRuby::Build.new do |conf|
     toolchain :clang
   end
 
+
   conf.gembox 'full-core'
   # This should point to where you downloaded mruby-curses
+  conf.cc.include_paths << '../ncurses-6.0/include'
   conf.gem '../mruby-curses'
-  conf.gem github: 'jbreeden/mruby-apr'
-  conf.gem github: 'jbreeden/mruby-sqlite'
+  conf.gem '../mruby-erb'
+  conf.gem '../mruby-apr'
+  conf.gem '../mruby-sqlite'
+  conf.gem '../mruby-bin-git-curses'
 
   # Linker settings
   conf.linker do |linker|
