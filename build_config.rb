@@ -30,9 +30,6 @@ MRuby::Build.new('host') do |conf|
   end
 
   if OS.mac?
-    conf.cc.flags << '-m64'
-    conf.cxx.flags << '-m64'
-
     # Need to tell the compiler & linker to match the standard
     # library used by CEF. (Avoids "missing v table" errors)
     conf.cc.flags << '-stdlib=libstdc++'
@@ -41,6 +38,8 @@ MRuby::Build.new('host') do |conf|
   elsif OS.windows?
     # TODO: Can I check for 64 bit build environment?
 
+    # Tell MRuby to use the same C runtime as CEF.
+    # TODO: This seems hacky... must be a more straightforward way.
     [conf.cc, conf.cxx].each do |compiler|
       compiler.flags = compiler.flags.flatten.map do |flag|
         if flag == "/MD"
