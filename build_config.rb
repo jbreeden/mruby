@@ -25,6 +25,10 @@ MRuby::Build.new('host') do |conf|
     toolchain :clang
   end
 
+  if OS.unix?
+    conf.cc.flags << '-fexceptions'
+  end
+
   if OS.mac?
     conf.cc.flags << '-m64'
     conf.cxx.flags << '-m64'
