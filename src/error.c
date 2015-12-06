@@ -7,16 +7,16 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include "mruby.h"
-#include "mruby/array.h"
-#include "mruby/irep.h"
-#include "mruby/proc.h"
-#include "mruby/string.h"
-#include "mruby/variable.h"
-#include "mruby/debug.h"
-#include "mruby/error.h"
-#include "mruby/class.h"
-#include "mruby/throw.h"
+#include <mruby.h>
+#include <mruby/array.h>
+#include <mruby/irep.h>
+#include <mruby/proc.h>
+#include <mruby/string.h>
+#include <mruby/variable.h>
+#include <mruby/debug.h>
+#include <mruby/error.h>
+#include <mruby/class.h>
+#include <mruby/throw.h>
 
 MRB_API mrb_value
 mrb_exc_new(mrb_state *mrb, struct RClass *c, const char *ptr, size_t len)
@@ -309,7 +309,7 @@ mrb_name_error(mrb_state *mrb, mrb_sym id, const char *fmt, ...)
 MRB_API void
 mrb_warn(mrb_state *mrb, const char *fmt, ...)
 {
-#ifdef ENABLE_STDIO
+#ifndef MRB_DISABLE_STDIO
   va_list ap;
   mrb_value str;
 
@@ -324,7 +324,7 @@ mrb_warn(mrb_state *mrb, const char *fmt, ...)
 MRB_API mrb_noreturn void
 mrb_bug(mrb_state *mrb, const char *fmt, ...)
 {
-#ifdef ENABLE_STDIO
+#ifndef MRB_DISABLE_STDIO
   va_list ap;
   mrb_value str;
 
