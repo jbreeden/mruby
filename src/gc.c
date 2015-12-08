@@ -6,17 +6,17 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include "mruby.h"
-#include "mruby/array.h"
-#include "mruby/class.h"
-#include "mruby/data.h"
-#include "mruby/hash.h"
-#include "mruby/proc.h"
-#include "mruby/range.h"
-#include "mruby/string.h"
-#include "mruby/variable.h"
-#include "mruby/gc.h"
-#include "mruby/error.h"
+#include <mruby.h>
+#include <mruby/array.h>
+#include <mruby/class.h>
+#include <mruby/data.h>
+#include <mruby/hash.h>
+#include <mruby/proc.h>
+#include <mruby/range.h>
+#include <mruby/string.h>
+#include <mruby/variable.h>
+#include <mruby/gc.h>
+#include <mruby/error.h>
 
 /*
   = Tri-color Incremental Garbage Collection
@@ -1425,7 +1425,7 @@ gc_each_objects(mrb_state *mrb, mrb_gc *gc, mrb_each_object_callback *callback, 
 void
 mrb_objspace_each_objects(mrb_state *mrb, mrb_each_object_callback *callback, void *data)
 {
-  return gc_each_objects(mrb, &mrb->gc, callback, data);
+  gc_each_objects(mrb, &mrb->gc, callback, data);
 }
 
 #ifdef GC_TEST
