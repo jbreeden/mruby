@@ -24,14 +24,19 @@ MRuby::Build.new do |conf|
   conf.gembox 'full-core'
   conf.cc.include_paths << "/usr/local/Cellar/gettext/0.19.6/include"
   conf.cc.include_paths.concat `pkg-config glib-2.0 --cflags`.gsub('-I', '').split(' ')
+  conf.cc.include_paths.concat `pkg-config gio-2.0 --cflags`.gsub('-I', '').split(' ')
   conf.linker.flags << '-framework CoreFoundation'
   conf.linker.flags << '-framework Carbon'
   conf.linker.library_paths.concat `pkg-config glib-2.0 --libs-only-L`.gsub('-L', '').split(' ')
   conf.linker.library_paths << "/usr/local/Cellar/gettext/0.19.6/lib"
   conf.linker.libraries.concat `pkg-config glib-2.0 --libs-only-l`.gsub('-l', '').split(' ')
+  conf.linker.libraries.concat `pkg-config gio-2.0 --libs-only-l`.gsub('-l', '').split(' ')
   conf.linker.libraries << 'iconv'
   
   conf.gem "../mruby-glib"
+  # For generating api documentation
+  conf.gem "../mruby-erb"
+  conf.gem github: 'iij/mruby-regexp-pcre'
   
   # C compiler settings
   # conf.cc do |cc|
