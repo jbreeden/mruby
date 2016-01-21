@@ -10,6 +10,7 @@ MRuby::Build.new do |conf|
 
   # This should point to where you downloaded mruby-curses
   conf.gem '../mruby-curses'
+  conf.gem '../mruby-bin-git-curses'
   ## Alternatively...
   # conf.gem github: 'jbreeden/mruby-curses'
 
