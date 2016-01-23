@@ -1,138 +1,71 @@
-MRuby::Build.new do |conf|
-  # load specific toolchain settings
+# Thanks! http://stackoverflow.com/questions/170956/how-can-i-find-which-operating-system-my-ruby-program-is-running-on
+module OS
+  def OS.windows?
+    (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
+  end
 
+  def OS.mac?
+   (/darwin/ =~ RUBY_PLATFORM) != nil
+  end
+
+  def OS.unix?
+    !OS.windows?
+  end
+
+  def OS.linux?
+    OS.unix? and not OS.mac?
+  end
+end
+
+MRuby::Build.new('host') do |conf|
   # Gets set by the VS command prompts.
   if ENV['VisualStudioVersion'] || ENV['VSINSTALLDIR']
     toolchain :visualcpp
   else
-    toolchain :gcc
+    toolchain :clang
   end
 
-  enable_debug
-
-  # Use mrbgems
-  # conf.gem 'examples/mrbgems/ruby_extension_example'
-  # conf.gem 'examples/mrbgems/c_extension_example' do |g|
-  #   g.cc.flags << '-g' # append cflags in this gem
-  # end
-  # conf.gem 'examples/mrbgems/c_and_ruby_extension_example'
-  # conf.gem :github => 'masuidrive/mrbgems-example', :checksum_hash => '76518e8aecd131d047378448ac8055fa29d974a9'
-  # conf.gem :git => 'git@github.com:masuidrive/mrbgems-example.git', :branch => 'master', :options => '-v'
-
-  # include the default GEMs
-  conf.gembox 'default'
-  # C compiler settings
-  # conf.cc do |cc|
-  #   cc.command = ENV['CC'] || 'gcc'
-  #   cc.flags = [ENV['CFLAGS'] || %w()]
-  #   cc.include_paths = ["#{root}/include"]
-  #   cc.defines = %w(DISABLE_GEMS)
-  #   cc.option_include_path = '-I%s'
-  #   cc.option_define = '-D%s'
-  #   cc.compile_options = "%{flags} -MMD -o %{outfile} -c %{infile}"
-  # end
-
-  # mrbc settings
-  # conf.mrbc do |mrbc|
-  #   mrbc.compile_options = "-g -B%{funcname} -o-" # The -g option is required for line numbers
-  # end
-
-  # Linker settings
-  # conf.linker do |linker|
-  #   linker.command = ENV['LD'] || 'gcc'
-  #   linker.flags = [ENV['LDFLAGS'] || []]
-  #   linker.flags_before_libraries = []
-  #   linker.libraries = %w()
-  #   linker.flags_after_libraries = []
-  #   linker.library_paths = []
-  #   linker.option_library = '-l%s'
-  #   linker.option_library_path = '-L%s'
-  #   linker.link_options = "%{flags} -o %{outfile} %{objs} %{libs}"
-  # end
-
-  # Archiver settings
-  # conf.archiver do |archiver|
-  #   archiver.command = ENV['AR'] || 'ar'
-  #   archiver.archive_options = 'rs %{outfile} %{objs}'
-  # end
-
-  # Parser generator settings
-  # conf.yacc do |yacc|
-  #   yacc.command = ENV['YACC'] || 'bison'
-  #   yacc.compile_options = '-o %{outfile} %{infile}'
-  # end
-
-  # gperf settings
-  # conf.gperf do |gperf|
-  #   gperf.command = 'gperf'
-  #   gperf.compile_options = '-L ANSI-C -C -p -j1 -i 1 -g -o -t -N mrb_reserved_word -k"1,3,$" %{infile} > %{outfile}'
-  # end
-
-  # file extensions
-  # conf.exts do |exts|
-  #   exts.object = '.o'
-  #   exts.executable = '' # '.exe' if Windows
-  #   exts.library = '.a'
-  # end
-
-  # file separetor
-  # conf.file_separator = '/'
-
-  # bintest
-  # conf.enable_bintest
-end
-
-MRuby::Build.new('host-debug') do |conf|
-  # load specific toolchain settings
-
-  # Gets set by the VS command prompts.
-  if ENV['VisualStudioVersion'] || ENV['VSINSTALLDIR']
-    toolchain :visualcpp
-  else
-    toolchain :gcc
+  if OS.unix?
+    conf.cc.flags << '-fexceptions'
   end
 
-  enable_debug
+  if OS.mac?
+    # Need to tell the compiler & linker to match the standard
+    # library used by CEF. (Avoids "missing v table" errors)
+    conf.cc.flags << '-stdlib=libstdc++'
+    conf.cxx.flags << '-stdlib=libstdc++'
+    conf.linker.flags << '-stdlib=libstdc++'
+  elsif OS.windows?
+    # TODO: Can I check for 64 bit build environment?
 
-  # include the default GEMs
-  conf.gembox 'default'
-
-  # C compiler settings
-  conf.cc.defines = %w(MRB_ENABLE_DEBUG_HOOK)
-
-  # Generate mruby debugger command (require mruby-eval)
-  conf.gem :core => "mruby-bin-debugger"
-
-  # bintest
-  # conf.enable_bintest
-end
-
-MRuby::Build.new('test') do |conf|
-  # Gets set by the VS command prompts.
-  if ENV['VisualStudioVersion'] || ENV['VSINSTALLDIR']
-    toolchain :visualcpp
-  else
-    toolchain :gcc
+    # Tell MRuby to use the same C runtime as CEF.
+    # TODO: This seems hacky... must be a more straightforward way.
+    [conf.cc, conf.cxx].each do |compiler|
+      compiler.flags = compiler.flags.flatten.map do |flag|
+        if flag == "/MD"
+          "/MT"
+        else
+          flag
+        end
+      end
+    end
   end
 
-  enable_debug
-  conf.enable_bintest
-  conf.enable_test
+  Dir.entries('mrbgems').reject { |f| f =~ /bin|test/ || !(f =~ /mruby/) }.each do |gem|
+    conf.gem core: gem
+  end
 
-  conf.gembox 'default'
+  conf.gem :github => 'iij/mruby-regexp-pcre'
+  conf.gem :github => "jbreeden/mruby-apr"
+  conf.gem :github => "jbreeden/mruby-sqlite"
+  configure_mruby_apr(conf)
+  conf.gem "../mrbgems/mruby-rubium"
+  conf.gem "../mrbgems/mruby-bin-rubium"
+  conf.gem "../mrbgems/mruby-cef"
+
+  if ENV['DEBUG'] && (ENV['VisualStudioVersion'] || ENV['VSINSTALLDIR'])
+    conf.cc.flags << "/DEBUG"
+    conf.cxx.flags << "/DEBUG"
+  end
+
 end
-
-# Define cross build settings
-# MRuby::CrossBuild.new('32bit') do |conf|
-#   toolchain :gcc
-#
-#   conf.cc.flags << "-m32"
-#   conf.linker.flags << "-m32"
-#
-#   conf.build_mrbtest_lib_only
-#
-#   conf.gem 'examples/mrbgems/c_and_ruby_extension_example'
-#
-#   conf.test_runner.command = 'env'
-#
-# end
