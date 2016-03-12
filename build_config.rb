@@ -5,6 +5,8 @@ MRuby::Build.new do |conf|
     toolchain :clang
   end
 
+  conf.enable_debug
+
   conf.cc.flags << '-DMRB_INT64'
 
   conf.gembox 'full-core'
@@ -13,7 +15,7 @@ MRuby::Build.new do |conf|
   # conf.gem '../mruby-libuv'
   # conf.gem '../mruby-nurb'
   # conf.gem '../mruby-curses'
-  # conf.gem '../mruby-erb'
+  conf.gem '../mruby-erb'
   # conf.gem '../mruby-sqlite'
   # conf.gem '../mruby-zlib'
   # conf.gem '../mruby-git'
